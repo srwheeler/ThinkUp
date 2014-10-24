@@ -53,17 +53,6 @@ class TwitterPluginConfigurationController extends PluginConfigurationController
         $plugin = new TwitterPlugin();
         if ($plugin->isConfigured()) {
             $this->addToView('is_configured', true);
-            $owner_instances = $instance_dao->getByOwnerAndNetwork($this->owner, 'twitter');
-            $this->addToView('owner_instances', $owner_instances);
-            if (isset($this->owner) && $this->owner->isMemberAtAnyLevel()) {
-                if ($this->owner->isMemberLevel()) {
-                    if (sizeof($owner_instances) > 0) {
-                        $this->do_show_add_button = false;
-                        $this->addInfoMessage("To connect another Twitter account to ThinkUp, upgrade your membership.",
-                        'membership_cap');
-                    }
-                }
-            }
             if (isset($_GET['oauth_token']) || $this->do_show_add_button ) {
                 $twitter_oauth = new TwitterOAuth($oauth_consumer_key, $oauth_consumer_secret);
                 /* Request tokens from twitter */
@@ -89,6 +78,17 @@ class TwitterPluginConfigurationController extends PluginConfigurationController
                     "are correct.", "setup");
                     $oauthorize_link = '';
                     $this->addToView('is_configured', false);
+                }
+            }
+            $owner_instances = $instance_dao->getByOwnerAndNetwork($this->owner, 'twitter');
+            $this->addToView('owner_instances', $owner_instances);
+            if (isset($this->owner) && $this->owner->isMemberAtAnyLevel()) {
+                if ($this->owner->isMemberLevel()) {
+                    if (sizeof($owner_instances) > 0) {
+                        $this->do_show_add_button = false;
+                        $this->addInfoMessage("To connect another Twitter account to ThinkUp, upgrade your membership.",
+                        'membership_cap');
+                    }
                 }
             }
         } else {
@@ -164,7 +164,7 @@ class TwitterPluginConfigurationController extends PluginConfigurationController
                 if (isset($instance)) {
                     $owner_instance = $owner_instance_dao->get($this->owner->id, $instance->id);
                     if ($owner_instance != null) {
-                        $owner_instance_dao->updateTokens($this->owner->id, $instance->id, 
+                        $owner_instance_dao->updateTokens($this->owner->id, $instance->id,
                         $token_array['oauth_token'], $token_array['oauth_token_secret']);
                         $this->addSuccessMessage($authed_twitter_user['user_name'].
                         " on Twitter is already set up in ThinkUp! To add a different Twitter account, ".
